@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Arama</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body class="bg-light">
+    <div class="container d-flex flex-column justify-content-center align-items-center vh-100">
+        <h3 class="mb-4">Text ile Arama</h3>
+        <textarea id="text_query" class="form-control mb-2" placeholder="Metni girin" rows="5" style="width: 300px;"></textarea>
+        <button id="text_search" class="btn btn-primary mb-2">Search</button>
+        <div id="text_results" class="mt-4" style="width: 300px;"></div>
+    </div>
+
+    <script>
+        $('#text_search').on('click', function() {
+            const query = $('#text_query').val();
+            $.post('/text_search', { query: query }, function(data) {
+                $('#text_results').empty();
+                data.forEach(function(item) {
+                    $('#text_results').append('<p>' + item + '</p>');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

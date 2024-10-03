@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wikipedia Arama</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+</head>
+<body class="bg-light">
+    <div class="container d-flex flex-column justify-content-center align-items-center vh-100">
+        <h3 class="mb-4">Wikipedia ile Arama</h3>
+        <input type="text" id="query" class="form-control mb-2" placeholder="Aramak istediğiniz metni girin" style="width: 300px;">
+        <button id="search" class="btn btn-primary mb-2">Search</button>
+        <select id="results" class="form-control" style="width: 300px;"></select>
+    </div>
+
+    <script>
+        $('#search').on('click', function() {
+            const query = $('#query').val();
+            $.post('/wikipedia_search', { query: query }, function(data) {
+                $('#results').empty();
+                data.forEach(function(item) {
+                    $('#results').append(new Option(item, item));
+                });
+            });
+        });
+    </script>
+</body>
+</html>
