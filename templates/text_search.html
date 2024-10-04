@@ -19,10 +19,10 @@
         $('#text_search').on('click', function() {
             const query = $('#text_query').val();
             $.post('/text_search', { query: query }, function(data) {
-                $('#text_results').empty();
+                /*$('#text_results').empty();
                 data.forEach(function(item) {
                     $('#text_results').append('<p>' + item + '</p>');
-                });
+                });*/
             });
         });
     </script>

@@ -18,11 +18,12 @@
     <script>
         $('#search').on('click', function() {
             const query = $('#query').val();
+            console.log("Query:", query);
             $.post('/wikipedia_search', { query: query }, function(data) {
-                $('#results').empty();
+                /*$('#results').empty();
                 data.forEach(function(item) {
                     $('#results').append(new Option(item, item));
-                });
+                });*/
             });
         });
     </script>
