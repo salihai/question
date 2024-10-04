@@ -13,19 +13,30 @@
         <input type="text" id="query" class="form-control mb-2" placeholder="Aramak istediğiniz metni girin" style="width: 300px;">
         <button id="search" class="btn btn-primary mb-2">Search</button>
         <select id="results" class="form-control" style="width: 300px;"></select>
+        <br>
+        <textarea id="text_query" class="form-control mb-2"  rows="5" style="width: 500px;"></textarea>
     </div>
 
     <script>
         $('#search').on('click', function() {
             const query = $('#query').val();
-            console.log("Query:", query);
-            $.post('/wikipedia_search', { query: query }, function(data) {
-                /*$('#results').empty();
+            $.post('/get_categories', { query: query }, function(data) {
+                $('#results').empty();
                 data.forEach(function(item) {
                     $('#results').append(new Option(item, item));
-                });*/
+                });
             });
         });
+
+        $('#results').on('change', function() {
+            const selectedItem = $(this).val(); 
+            $.post('/get_text', { selection: selectedItem }, function(response) {
+                $('#text_query').val(response);
+
+            });
+        });
+
+
     </script>
 </body>
 </html>
