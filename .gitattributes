@@ -1,0 +1,2 @@
+s2v_old/vectors filter=lfs diff=lfs merge=lfs -text
+s2v_reddit_2015_md.tar.gz filter=lfs diff=lfs merge=lfs -text

@@ -6,22 +6,80 @@
     <title>Wikipedia Arama</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <style>
+        
+        #popUp {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 50; 
+            display: flex;
+            justify-content: center;
+            align-items: center; 
+        }
+
+        .popUpContent {
+            background-color: white; 
+            border-radius: 8px;
+            padding: 20px;
+            width: 300px; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+            text-align: center;
+        }
+    </style>
 </head>
 <body class="bg-light">
-    <div class="container d-flex flex-column justify-content-center align-items-center vh-100">
+    <div class="container d-flex flex-column justify-content-center align-items-center vh-100 overflow-y-auto">
         <h3 class="mb-4">Wikipedia ile Arama</h3>
         <input type="text" id="query" class="form-control mb-2" placeholder="Aramak istediğiniz metni girin" style="width: 300px;">
         <button id="search" class="btn btn-primary mb-2">Search</button>
         <select id="results" class="form-control" style="width: 300px;"></select>
         <br>
-        <textarea id="text_query" class="form-control mb-2"  rows="5" style="width: 500px;"></textarea>
+        <textarea id="text_query" class="form-control mb-2" rows="5" style="width: 500px;"></textarea>
+        
+
+        <div id="loading-spinner" class="spinner-border text-primary" role="status" style="display: none;">
+            
+        </div>
+
+        <br> 
+
+        <div id="questions-container" class="w-100" style="overflow-y:auto;"></div>
+
+        <div id="buttons" class="flex items-center justify center " role="status" style="display: none;">
+            <button id="save" type="button" class="btn btn-success "> ✔️ </button>
+            <button id="delete" type="button" class="btn btn-danger "> ❌ </button>
+        </div>
+
+        <br>
+
+
+
+        <div id="popUp"  role="status" style="display: none;">
+            <div class="popUpContent">
+                <h3>Başarıyla Kaydedildi!</h3>
+                <p>Soru veritabanına başarıyla kaydedildi.</p>
+                <button id="Ok" class="btn btn-primary">Tamam</button>
+            </div>
+        </div>
+
     </div>
 
     <script>
+        
+
         $('#search').on('click', function() {
+            $('#text_query').val("");
+            $('#questions-container').empty();
+            $('#results').empty();
+
             const query = $('#query').val();
+
             $.post('/get_categories', { query: query }, function(data) {
-                $('#results').empty();
                 data.forEach(function(item) {
                     $('#results').append(new Option(item, item));
                 });
@@ -30,13 +88,58 @@
 
         $('#results').on('change', function() {
             const selectedItem = $(this).val(); 
-            $.post('/get_text', { selection: selectedItem }, function(response) {
-                $('#text_query').val(response);
+            $('#text_query').val("");
+            $('#questions-container').empty();
+            $('#loading-spinner').show();
 
+            $.post('/get_text', { selection: selectedItem }, function(response) {
+                $('#text_query').val(response.text);
+
+                const questionsContainer = $('#questions-container');
+                questionsContainer.empty(); 
+
+                response.questions.forEach((item, index) => {
+                    const questionDiv = $('<div class="question"></div>');
+                    questionDiv.append(`<strong>Soru ${index + 1}:</strong> ${item.question}<br>`);
+                    
+                    item.answers.forEach((answer, i) => {
+                        questionDiv.append(`${String.fromCharCode(97 + i)}) ${answer}<br>`);
+                    });
+                    
+                    questionsContainer.append(questionDiv);
+                });
+
+                $('#loading-spinner').hide();
+                $('#buttons').show();
             });
         });
 
+        $('#save').on('click', function() {
+            $('#buttons').hide();
 
+            $.post('/save_question_wikipedia', function(response) {
+                if(response.status) {
+                    $('#popUp').show(); // Pop-up'ı göster
+                }
+            });
+        });
+
+        $('#delete').on('click', function() {
+            $('#text_query').val("");
+            $('#query').val("");
+            $('#questions-container').empty();
+            $('#results').empty();
+            $('#buttons').hide();
+        });
+
+        $('#Ok').on('click', function() {
+            $('#text_query').val("");
+            $('#query').val("");
+            $('#questions-container').empty();
+            $('#results').empty();
+            $('#buttons').hide();
+            $('#popUp').hide(); // Pop-up'ı gizle
+        });
     </script>
 </body>
 </html>

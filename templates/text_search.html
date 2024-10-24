@@ -6,25 +6,125 @@
     <title>Text Arama</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        
+        #popUp {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 50; 
+            display: flex;
+            justify-content: center;
+            align-items: center; 
+        }
+
+        .popUpContent {
+            background-color: white; 
+            border-radius: 8px;
+            padding: 20px;
+            width: 300px; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+            text-align: center;
+        }
+    </style>
 </head>
 <body class="bg-light">
     <div class="container d-flex flex-column justify-content-center align-items-center vh-100">
         <h3 class="mb-4">Text ile Arama</h3>
         <textarea id="text_query" class="form-control mb-2" placeholder="Metni girin" rows="5" style="width: 300px;"></textarea>
         <button id="text_search" class="btn btn-primary mb-2">Search</button>
-        <div id="text_results" class="mt-4" style="width: 300px;"></div>
+
+        <div id="loading-spinner" class="spinner-border text-primary" role="status" style="display: none;">
+            <span class="visually-hidden"></span>
+        </div>
+
+        <div id="questions-container" class="w-100" style="overflow-y:auto;">
+        </div>
+
+        <div id="buttons" class="flex items-center justify center " role="status" style="display: none;">
+            <button id="save" type="button" class="btn btn-success "> ✔️ </button>
+            <button id="delete" type="button" class="btn btn-danger "> ❌ </button>
+        </div>
+
+        <br>
+
+        <div id="popUp"  role="status" style="display: none;">
+            <div class="popUpContent">
+                <h3>Başarıyla Kaydedildi!</h3>
+                <p>Soru veritabanına başarıyla kaydedildi.</p>
+                <button id="Ok" class="btn btn-primary">Tamam</button>
+            </div>
+        </div>
     </div>
 
     <script>
         $('#text_search').on('click', function() {
+
+            $('#questions-container').empty();
+
+            $('#loading-spinner').show();
+
             const query = $('#text_query').val();
-            $.post('/text_search', { query: query }, function(data) {
-                /*$('#text_results').empty();
-                data.forEach(function(item) {
-                    $('#text_results').append('<p>' + item + '</p>');
-                });*/
+
+            $.post('/text_search', { query: query }, function(response) {
+
+                const questionsContainer = $('#questions-container');
+                questionsContainer.empty(); 
+
+                response.questions.forEach((item, index) => {
+                    const questionDiv = $('<div class="question"></div>');
+                    questionDiv.append(`<strong>Soru ${index + 1}:</strong> ${item.question}<br>`);
+                    
+                    item.answers.forEach((answer, i) => {
+                        questionDiv.append(`${String.fromCharCode(97 + i)}) ${answer}<br>`);
+                    });
+                    
+                    questionsContainer.append(questionDiv);
+
+                    $('#loading-spinner').hide();
+
+                    $('#buttons').show();
+                });
+
             });
         });
+
+
+        $('#save').on('click', function() {
+
+            $('#buttons').hide();
+
+            $.post('/save_question_text', function(response) {
+                if(response.status) {
+                    $('#popUp').show(); // Pop-up'ı göster
+                }
+            });
+            
+        });
+
+        $('#delete').on('click', function() {
+
+            $('#text_query').val("");
+            
+            $('#questions-container').empty();
+
+            $('#buttons').hide();
+            
+        });
+
+
+        $('#Ok').on('click', function() {
+            $('#text_query').val("");
+            $('#questions-container').empty();
+            $('#buttons').hide();
+            $('#popUp').hide(); // Pop-up'ı gizle
+        });
+
+
     </script>
 </body>
 </html>
