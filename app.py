@@ -1,18 +1,17 @@
 from flask import Flask, render_template, request, jsonify
 import wikipediaapi
-from textwrap3 import wrap
 import torch
 from transformers import T5ForConditionalGeneration, T5Tokenizer
 import random
 import numpy as np
 import nltk
 
-'''nltk.download('punkt')
+nltk.download('punkt')
 nltk.download('punkt_tab')
 nltk.download('stopwords')
 nltk.download('wordnet')
 nltk.download('brown')
-nltk.download('omw-1.4')'''
+nltk.download('omw-1.4')
 
 from nltk.corpus import wordnet as wn
 from nltk.tokenize import sent_tokenize
